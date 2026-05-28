@@ -1,0 +1,219 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int                @id @default(autoincrement())
+  username       String             @unique
+  password       String
+  nickname       String
+  avatar         String?
+  level          Int                @default(1)
+  exp            Int                @default(0)
+  role           String             @default("user")     // "admin" | "user" | "guest"
+  isActive       Boolean            @default(true)
+  inviteCodeId   Int?               // 关联的邀请码
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  tasks          Task[]
+  pomodoroSessions PomodoroSession[]
+  notes          Note[]
+  diaries        Diary[]
+  checkins       Checkin[]
+  pointsLogs     PointsLog[]
+  orders         Order[]
+  achievements   Achievement[]
+  notifications  Notification[]
+  inviteCode     InviteCode?        @relation(fields: [inviteCodeId], references: [id], onDelete: SetNull)
+
+  @@map("user")
+}
+
+model InviteCode {
+  id             Int                @id @default(autoincrement())
+  code           String             @unique
+  role           String             @default("user")   // "user" | "guest"
+  maxUses        Int                @default(1)        // 最多使用次数
+  usedCount      Int                @default(0)
+  createdBy      Int                                   // 管理员 ID
+  isActive       Boolean            @default(true)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  users          User[]
+
+  @@map("invite_code")
+}
+
+model Task {
+  id             Int                @id @default(autoincrement())
+  userId         Int
+  title          String
+  description    String?
+  priority       String             @default("important")
+  status         String             @default("todo")
+  category       String?
+  dueDate        DateTime?
+  completedAt    DateTime?
+  pomodoroCount  Int                @default(0)
+  pointsReward   Int                @default(10)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pomodoroSessions PomodoroSession[]
+
+  @@map("task")
+}
+
+model PomodoroSession {
+  id              Int               @id @default(autoincrement())
+  userId          Int
+  taskId          Int?
+  durationPlanned Int               @default(25)
+  durationActual  Int?
+  startedAt       DateTime          @default(now())
+  endedAt         DateTime?
+  type            String            @default("focus")
+  status          String            @default("completed")
+  createdAt       DateTime          @default(now())
+
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task            Task?             @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@map("pomodoro_session")
+}
+
+model Note {
+  id             Int                @id @default(autoincrement())
+  userId         Int
+  title          String
+  content        String?
+  tags           String?
+  isPublic       Boolean            @default(false)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("note")
+}
+
+model SystemSetting {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String
+
+  @@map("system_setting")
+}
+
+model Diary {
+  id             Int                @id @default(autoincrement())
+  userId         Int
+  title          String
+  content        String?
+  mood           String?
+  weather        String?
+  isPublic       Boolean            @default(false)
+  date           DateTime
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("diary")
+}
+
+model Checkin {
+  id             Int                @id @default(autoincrement())
+  userId         Int
+  habitName      String
+  date           DateTime
+  status         String             @default("done")
+  streakCount    Int                @default(1)
+  points         Int                @default(5)
+  createdAt      DateTime           @default(now())
+
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("checkin")
+}
+
+model PointsLog {
+  id             Int                @id @default(autoincrement())
+  userId         Int
+  points         Int
+  type           String
+  source         String
+  referenceId    String?
+  remark         String?
+  createdAt      DateTime           @default(now())
+
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("points_log")
+}
+
+model ShopItem {
+  id             Int                @id @default(autoincrement())
+  name           String
+  description    String?
+  price          Int
+  stock          Int                @default(-1)
+  image          String?
+  type           String             @default("virtual")
+  isActive       Boolean            @default(true)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  orders         Order[]
+
+  @@map("shop_item")
+}
+
+model Order {
+  id             Int                @id @default(autoincrement())
+  userId         Int
+  itemId         Int
+  pointsSpent    Int
+  status         String             @default("paid")
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item           ShopItem           @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("order")
+}
+
+model Achievement {
+  id             Int                @id @default(autoincrement())
+  userId         Int
+  badgeName      String
+  badgeIcon      String?
+  earnedAt       DateTime           @default(now())
+
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("achievement")
+}
+
+model Notification {
+  id             Int                @id @default(autoincrement())
+  userId         Int
+  title          String
+  content        String?
+  type           String?
+  isRead         Boolean            @default(false)
+  createdAt      DateTime           @default(now())
+
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification")
+}
