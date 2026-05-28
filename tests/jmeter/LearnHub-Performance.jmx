@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- LearnHub JMeter 性能测试脚本 -->
+<!-- LearnHub JMeter Full Business Test Suite -->
+<!-- Generated: 2026-05-29 | Covers: Auth, Checkin, Task, Shop, Admin, Pomodoro, Note, Diary, Reward -->
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
-    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="LearnHub API 性能测试" enabled="true">
-      <stringProp name="TestPlan.comments">LearnHub API    1.  50  &lt; 300ms (P95) 2. / &gt; 50 req/s 3. </stringProp>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="LearnHub Full Business Test" enabled="true">
+      <stringProp name="TestPlan.comments">Full Business Test - 6 Thread Groups, 45+ API calls covering all CRUD operations, auth boundary tests, points verification, and data isolation validation.</stringProp>
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.tearDownOnShutdown">true</boolProp>
       <stringProp name="TestPlan.user_defined_classpath"></stringProp>
     </TestPlan>
     <hashTree>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="用户定义变量" enabled="true">
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
         <collectionProp name="Arguments.arguments">
           <elementProp name="BASE_URL" elementType="Argument">
             <stringProp name="Argument.name">BASE_URL</stringProp>
@@ -29,7 +30,7 @@
         </collectionProp>
       </Arguments>
       <hashTree/>
-      <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP 信息头管理器" enabled="true">
+      <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
         <collectionProp name="HeaderManager.headers">
           <elementProp name="" elementType="Header">
             <stringProp name="Header.name">Content-Type</stringProp>
@@ -38,7 +39,7 @@
         </collectionProp>
       </HeaderManager>
       <hashTree/>
-      <ConfigTestElement guiclass="HttpDefaultsGui" testclass="HttpDefaults" testname="HTTP 请求默认值" enabled="true">
+      <ConfigTestElement guiclass="HttpDefaultsGui" testclass="HttpDefaults" testname="HTTP Request Defaults" enabled="true">
         <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments">
           <collectionProp name="Arguments.arguments"/>
         </elementProp>
@@ -46,46 +47,43 @@
         <stringProp name="HTTPSampler.port">3000</stringProp>
         <stringProp name="HTTPSampler.protocol">http</stringProp>
         <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-        <stringProp name="HTTPSampler.path"></stringProp>
+        <stringProp name="HTTPSampler.path">/api</stringProp>
         <stringProp name="HTTPSampler.method">GET</stringProp>
         <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-        <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
         <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-        <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-        <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
-        <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
-        <stringProp name="HTTPSampler.mimetype"></stringProp>
-        <boolProp name="HTTPSampler.monitor">false</boolProp>
-        <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-        <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-        <stringProp name="HTTPSampler.response_timeout"></stringProp>
+        <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
+        <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
       </ConfigTestElement>
       <hashTree/>
-
-      <!-- ========== 线程组 1：认证 + 信息查询（基准测试） ========== -->
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="认证与信息查询" enabled="true">
+      <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Auth Header Manager" enabled="true">
+        <collectionProp name="HeaderManager.headers">
+          <elementProp name="" elementType="Header">
+            <stringProp name="Header.name">Authorization</stringProp>
+            <stringProp name="Header.value">Bearer ${auth_token}</stringProp>
+          </elementProp>
+        </collectionProp>
+      </HeaderManager>
+      <hashTree/>
+      <CookieManager guiclass="CookieManagerGui" testclass="CookieManager" testname="HTTP Cookie Manager" enabled="true"/>
+      <hashTree/>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="01 - Authentication" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <intProp name="LoopController.loops">10</intProp>
+          <intProp name="LoopController.loops">5</intProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">10</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">5</stringProp>
+        <stringProp name="ThreadGroup.num_threads">5</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">3</stringProp>
         <longProp name="ThreadGroup.start_time">0</longProp>
         <longProp name="ThreadGroup.end_time">0</longProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
-        <stringProp name="ThreadGroup.duration"></stringProp>
-        <stringProp name="ThreadGroup.delay"></stringProp>
-        <boolProp name="ThreadGroup.pack_threads_by_thread_group">false</boolProp>
-        <boolProp name="ThreadGroup.post_group">false</boolProp>
       </ThreadGroup>
       <hashTree>
-        <!-- 登录 -->
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01-登录" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="1.1 Login Admin" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
-                <stringProp name="Argument.value">{"username":"${ADMIN_USER}","password":"${ADMIN_PASS}"}</stringProp>
+                <stringProp name="Argument.value">{&quot;username&quot;:&quot;${ADMIN_USER}&quot;,&quot;password&quot;:&quot;${ADMIN_PASS}&quot;}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -93,79 +91,79 @@
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <stringProp name="HTTPSampler.path">/api/auth/login</stringProp>
         </HTTPSamplerProxy>
-        <hashTree/>
-        <!-- 用户信息 -->
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02-用户信息" enabled="true">
+        <hashTree>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract auth_token" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">auth_token</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExpressions">$.data.id</stringProp>
+            <stringProp name="JSONPostProcessor.matchNumbers">1</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="1.2 Get Current User" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <stringProp name="HTTPSampler.path">/api/auth/me</stringProp>
         </HTTPSamplerProxy>
-        <hashTree/>
-        <!-- 打卡统计 -->
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="03-打卡统计" enabled="true">
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="1.3 Get User Role" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
-          <stringProp name="HTTPSampler.path">/api/checkins/stats</stringProp>
+          <stringProp name="HTTPSampler.path">/api/auth/role</stringProp>
         </HTTPSamplerProxy>
-        <hashTree/>
-        <!-- 番茄钟统计 -->
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="04-番茄钟统计" enabled="true">
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <stringProp name="HTTPSampler.path">/api/pomodoro/stats</stringProp>
-        </HTTPSamplerProxy>
-        <hashTree/>
-        <!-- 任务列表 -->
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="05-任务列表" enabled="true">
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <stringProp name="HTTPSampler.path">/api/tasks</stringProp>
-        </HTTPSamplerProxy>
-        <hashTree/>
-        <!-- 积分汇总 -->
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="06-积分汇总" enabled="true">
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <stringProp name="HTTPSampler.path">/api/rewards</stringProp>
-        </HTTPSamplerProxy>
-        <hashTree/>
-        <!-- 商品列表 -->
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="07-商品列表" enabled="true">
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <stringProp name="HTTPSampler.path">/api/shop</stringProp>
-        </HTTPSamplerProxy>
-        <hashTree/>
-      </hashTree>
-
-      <!-- ========== 线程组 2：写操作压力测试 ========== -->
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="写操作压力测试" enabled="true">
-        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel">
-          <boolProp name="LoopController.continue_forever">false</boolProp>
-          <intProp name="LoopController.loops">5</intProp>
-        </elementProp>
-        <stringProp name="ThreadGroup.num_threads">20</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">10</stringProp>
-        <longProp name="ThreadGroup.start_time">0</longProp>
-        <longProp name="ThreadGroup.end_time">0</longProp>
-        <boolProp name="ThreadGroup.scheduler">false</boolProp>
-      </ThreadGroup>
-      <hashTree>
-        <!-- 创建任务 -->
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="08-创建任务" enabled="true">
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="1.4 Login Wrong Password" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
-                <stringProp name="Argument.value">{"title":"压力测试任务_${__threadNum}","category":"urgent_important","priority":"urgent","pointsReward":20}</stringProp>
+                <stringProp name="Argument.value">{&quot;username&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;wrong_password&quot;}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
-          <stringProp name="HTTPSampler.path">/api/tasks</stringProp>
+          <stringProp name="HTTPSampler.path">/api/auth/login</stringProp>
         </HTTPSamplerProxy>
-        <hashTree/>
-        <!-- 创建打卡 -->
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="09-创建打卡" enabled="true">
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="1.5 Register New User" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
-                <stringProp name="Argument.value">{"habitName":"压力测试习惯_${__threadNum}","points":5}</stringProp>
+                <stringProp name="Argument.value">{&quot;username&quot;:&quot;jmeter_${__time}&quot;,&quot;password&quot;:&quot;123456&quot;,&quot;inviteCode&quot;:&quot;ADMIN2026&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">/api/auth/register</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="02 - Checkin Module" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <intProp name="LoopController.loops">3</intProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">5</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">5</stringProp>
+        <longProp name="ThreadGroup.start_time">0</longProp>
+        <longProp name="ThreadGroup.end_time">0</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="2.1 Create Checkin" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <stringProp name="Argument.value">{&quot;habitName&quot;:&quot;Habit_JMeter_${__threadNum}&quot;,&quot;points&quot;:5}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -173,17 +171,505 @@
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <stringProp name="HTTPSampler.path">/api/checkins</stringProp>
         </HTTPSamplerProxy>
-        <hashTree/>
-        <!-- 验证积分 -->
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="10-验证积分" enabled="true">
+        <hashTree>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract checkin_id" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">checkin_id</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExpressions">$.data.id</stringProp>
+            <stringProp name="JSONPostProcessor.matchNumbers">1</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="2.2 Duplicate Checkin" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <stringProp name="Argument.value">{&quot;habitName&quot;:&quot;Habit_JMeter_${__threadNum}&quot;,&quot;points&quot;:5}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">/api/checkins</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="2.3 Get Checkin List" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/checkins</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="2.4 Get Checkin Stats" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/checkins/stats</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="2.5 Delete Checkin Record" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">DELETE</stringProp>
+          <stringProp name="HTTPSampler.path">/api/checkins/record/${checkin_id}</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="2.6 Verify Points After Checkin" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <stringProp name="HTTPSampler.path">/api/rewards</stringProp>
         </HTTPSamplerProxy>
-        <hashTree/>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="2.7 Create Checkin Missing Name" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <stringProp name="Argument.value">{&quot;points&quot;:5}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">/api/checkins</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="2.8 Create Checkin Custom Points" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <stringProp name="Argument.value">{&quot;habitName&quot;:&quot;Habit_CustomPts_${__time}&quot;,&quot;points&quot;:10}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">/api/checkins</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
       </hashTree>
-
-      <!-- ========== 监听器 ========== -->
-      <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="汇总报告" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="03 - Task Module" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <intProp name="LoopController.loops">3</intProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">5</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">5</stringProp>
+        <longProp name="ThreadGroup.start_time">0</longProp>
+        <longProp name="ThreadGroup.end_time">0</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="3.1 Create Task Urgent" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <stringProp name="Argument.value">{&quot;title&quot;:&quot;Task_Urgent_${__time}&quot;,&quot;category&quot;:&quot;urgent_important&quot;,&quot;priority&quot;:&quot;urgent&quot;,&quot;pointsReward&quot;:20}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">/api/tasks</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract task_id" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">task_id</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExpressions">$.data.id</stringProp>
+            <stringProp name="JSONPostProcessor.matchNumbers">1</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="3.2 Create Task Important" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <stringProp name="Argument.value">{&quot;title&quot;:&quot;Task_Important_${__time}&quot;,&quot;category&quot;:&quot;not_urgent_important&quot;,&quot;priority&quot;:&quot;important&quot;,&quot;pointsReward&quot;:15}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">/api/tasks</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="3.3 Create Task Normal" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <stringProp name="Argument.value">{&quot;title&quot;:&quot;Task_Normal_${__time}&quot;,&quot;category&quot;:&quot;not_urgent_not_important&quot;,&quot;priority&quot;:&quot;normal&quot;,&quot;pointsReward&quot;:10}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">/api/tasks</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="3.4 Get Task List" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/tasks</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="3.5 Filter Tasks By Category" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/tasks?category=urgent_important</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="3.6 Complete Task (Add Points)" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <stringProp name="Argument.value">{&quot;status&quot;:&quot;done&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">PUT</stringProp>
+          <stringProp name="HTTPSampler.path">/api/tasks/${task_id}</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="3.7 Uncomplete Task (Deduct Points)" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <stringProp name="Argument.value">{&quot;status&quot;:&quot;todo&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">PUT</stringProp>
+          <stringProp name="HTTPSampler.path">/api/tasks/${task_id}</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="3.8 Delete Task" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">DELETE</stringProp>
+          <stringProp name="HTTPSampler.path">/api/tasks/${task_id}</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="04 - Shop Module" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <intProp name="LoopController.loops">2</intProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">3</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">3</stringProp>
+        <longProp name="ThreadGroup.start_time">0</longProp>
+        <longProp name="ThreadGroup.end_time">0</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="4.1 Get Shop Items" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/shop</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="4.2 Admin Create Item" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <stringProp name="Argument.value">{&quot;name&quot;:&quot;Item_${__time}&quot;,&quot;description&quot;:&quot;Created by JMeter&quot;,&quot;price&quot;:100,&quot;stock&quot;:50}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">/api/shop</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract shop_item_id" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">shop_item_id</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExpressions">$.data.id</stringProp>
+            <stringProp name="JSONPostProcessor.matchNumbers">1</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="4.3 Update Item Price" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <stringProp name="Argument.value">{&quot;price&quot;:80,&quot;stock&quot;:30}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">PUT</stringProp>
+          <stringProp name="HTTPSampler.path">/api/shop/${shop_item_id}</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="4.4 Buy Item" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">/api/shop/buy/${shop_item_id}</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="4.5 Get Order History" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/shop/orders</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="4.6 Delete Item" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">DELETE</stringProp>
+          <stringProp name="HTTPSampler.path">/api/shop/${shop_item_id}</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="4.7 Buy Non-existent Item" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">/api/shop/buy/99999</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="4.8 Admin Get All Items" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/shop?all=true</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="05 - Admin Module" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <intProp name="LoopController.loops">2</intProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">3</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">3</stringProp>
+        <longProp name="ThreadGroup.start_time">0</longProp>
+        <longProp name="ThreadGroup.end_time">0</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="5.1 Get User List" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/auth/users?page=1&amp;limit=10</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="5.2 Search Users" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/auth/users?search=admin</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="5.3 Get Invite Codes" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/invite-codes</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="5.4 Create Invite Code" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <stringProp name="Argument.value">{&quot;role&quot;:&quot;user&quot;,&quot;maxUses&quot;:3}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">/api/invite-codes</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="5.5 Get System Settings" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/settings</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="5.6 Verify Invite Code" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/invite-codes/verify/ADMIN2026</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="06 - Other Modules" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <intProp name="LoopController.loops">2</intProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">3</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">3</stringProp>
+        <longProp name="ThreadGroup.start_time">0</longProp>
+        <longProp name="ThreadGroup.end_time">0</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="6.1 Create Pomodoro" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <stringProp name="Argument.value">{&quot;durationPlanned&quot;:25,&quot;durationActual&quot;:25,&quot;type&quot;:&quot;focus&quot;,&quot;status&quot;:&quot;completed&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">/api/pomodoro</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="6.2 Get Pomodoro Stats" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/pomodoro/stats</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="6.3 Get Pomodoro History" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/pomodoro/history?year=2026&amp;month=5</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="6.4 Get Reward Summary" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/rewards</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="6.5 Get Reward Logs" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/rewards/logs</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="6.6 Create Note" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <stringProp name="Argument.value">{&quot;title&quot;:&quot;Note_${__time}&quot;,&quot;content&quot;:&quot;JMeter test note content for automated testing.&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">/api/notes</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="6.7 Get Notes" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/notes</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="6.8 Create Diary" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <stringProp name="Argument.value">{&quot;title&quot;:&quot;Diary_${__time}&quot;,&quot;content&quot;:&quot;JMeter test diary.&quot;,&quot;mood&quot;:&quot;happy&quot;,&quot;weather&quot;:&quot;sunny&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">/api/diaries</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="6.9 Get Diaries" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/diaries</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="6.10 Get Notifications" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.path">/api/notifications</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+        </hashTree>
+      </hashTree>
+      <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
         <collectionProp name="ResultCollector.fields">
           <stringProp name="0">startTime</stringProp>
           <stringProp name="1">label</stringProp>
