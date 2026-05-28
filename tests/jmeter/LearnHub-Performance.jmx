@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="LearnHub 性能测试计划" enabled="true">
+      <stringProp name="TestPlan.comments">LearnHub API 性能与压力测试
+
+测试目标：
+1. 验证核心接口在 50 并发下的响应时间
+2. 找到系统吞吐量拐点
+3. 验证积分/打卡等写操作的稳定性</stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.tearDownOnShutdown">true</boolProp>
+    </HashTree>
+
+    <!-- 全局变量 -->
+    <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="用户自定义变量" enabled="true">
+      <collectionProp name="Arguments.arguments">
+        <elementProp name="BASE_URL" elementType="Argument">
+          <stringProp name="Argument.name">BASE_URL</stringProp>
+          <stringProp name="Argument.value">http://localhost:3000</stringProp>
+        </elementProp>
+        <elementProp name="ADMIN_USER" elementType="Argument">
+          <stringProp name="Argument.name">ADMIN_USER</stringProp>
+          <stringProp name="Argument.value">admin</stringProp>
+        </elementProp>
+        <elementProp name="ADMIN_PASS" elementType="Argument">
+          <stringProp name="Argument.name">ADMIN_PASS</stringProp>
+          <stringProp name="Argument.value">123456</stringProp>
+        </elementProp>
+      </collectionProp>
+    </Arguments>
+
+    <!-- HTTP Cookie 管理器 -->
+    <CookieManager guiclass="CookieManagerGui" testclass="CookieManager" testname="HTTP Cookie 管理器" enabled="true"/>
+
+    <!-- 默认 HTTP 请求配置 -->
+    <ConfigTestElement guiclass="HttpDefaultsGui" testclass="HttpDefaults" testname="HTTP 请求默认值" enabled="true">
+      <stringProp name="HTTPSampler.domain">localhost</stringProp>
+      <stringProp name="HTTPSampler.port">3000</stringProp>
+      <stringProp name="HTTPSampler.protocol">http</stringProp>
+      <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
+    </ConfigTestElement>
+
+    <!-- ========== 线程组 1：认证 + 信息查询（基准测试） ========== -->
+    <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="01-基准测试：认证与信息查询" enabled="true">
+      <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+      <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
+        <boolProp name="LoopController.continue_forever">false</boolProp>
+        <intProp name="LoopController.loops">10</intProp>
+      </elementProp>
+      <stringProp name="ThreadGroup.num_threads">10</stringProp>
+      <stringProp name="ThreadGroup.ramp_time">5</stringProp>
+    </HashTree>
+
+    <!-- 登录请求 -->
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="登录" enabled="true">
+      <stringProp name="HTTPSampler.method">POST</stringProp>
+      <stringProp name="HTTPSampler.path">/api/auth/login</stringProp>
+      <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+      <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="" elementType="HTTPArgument">
+            <stringProp name="Argument.value">{"username":"${ADMIN_USER}","password":"${ADMIN_PASS}"}</stringProp>
+            <stringProp name="HTTPArgument.always_encode">false</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+    </HTTPSamplerProxy>
+    <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="查看结果树" enabled="true"/>
+
+    <!-- 用户信息查询 -->
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="获取用户信息" enabled="true">
+      <stringProp name="HTTPSampler.method">GET</stringProp>
+      <stringProp name="HTTPSampler.path">/api/auth/me</stringProp>
+    </HTTPSamplerProxy>
+
+    <!-- 打卡统计 -->
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="打卡统计" enabled="true">
+      <stringProp name="HTTPSampler.method">GET</stringProp>
+      <stringProp name="HTTPSampler.path">/api/checkins/stats</stringProp>
+    </HTTPSamplerProxy>
+
+    <!-- 番茄钟统计 -->
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="番茄钟统计" enabled="true">
+      <stringProp name="HTTPSampler.method">GET</stringProp>
+      <stringProp name="HTTPSampler.path">/api/pomodoro/stats</stringProp>
+    </HTTPSamplerProxy>
+
+    <!-- 任务列表 -->
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="任务列表" enabled="true">
+      <stringProp name="HTTPSampler.method">GET</stringProp>
+      <stringProp name="HTTPSampler.path">/api/tasks</stringProp>
+    </HTTPSamplerProxy>
+
+    <!-- 积分汇总 -->
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="积分汇总" enabled="true">
+      <stringProp name="HTTPSampler.method">GET</stringProp>
+      <stringProp name="HTTPSampler.path">/api/rewards</stringProp>
+    </HTTPSamplerProxy>
+
+    <!-- 商品列表 -->
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="商品列表" enabled="true">
+      <stringProp name="HTTPSampler.method">GET</stringProp>
+      <stringProp name="HTTPSampler.path">/api/shop</stringProp>
+    </HTTPSamplerProxy>
+
+    <!-- ========== 线程组 2：写操作压力测试 ========== -->
+    <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="02-压力测试：写操作（打卡+任务）" enabled="true">
+      <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+      <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
+        <boolProp name="LoopController.continue_forever">false</boolProp>
+        <intProp name="LoopController.loops">5</intProp>
+      </elementProp>
+      <stringProp name="ThreadGroup.num_threads">20</stringProp>
+      <stringProp name="ThreadGroup.ramp_time">10</stringProp>
+    </HashTree>
+
+    <!-- 创建任务 -->
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="创建任务" enabled="true">
+      <stringProp name="HTTPSampler.method">POST</stringProp>
+      <stringProp name="HTTPSampler.path">/api/tasks</stringProp>
+      <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="" elementType="HTTPArgument">
+            <stringProp name="Argument.value">{"title":"JMeter 压力测试任务","category":"urgent_important","priority":"urgent","pointsReward":20}</stringProp>
+            <stringProp name="HTTPArgument.always_encode">false</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+    </HTTPSamplerProxy>
+
+    <!-- 创建打卡 -->
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="创建打卡" enabled="true">
+      <stringProp name="HTTPSampler.method">POST</stringProp>
+      <stringProp name="HTTPSampler.path">/api/checkins</stringProp>
+      <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="" elementType="HTTPArgument">
+            <stringProp name="Argument.value">{"habitName":"JMeter 压力测试习惯_${__threadNum}","points":5}</stringProp>
+            <stringProp name="HTTPArgument.always_encode">false</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+    </HTTPSamplerProxy>
+
+    <!-- 完成积分验证（获取积分后写操作） -->
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="验证积分" enabled="true">
+      <stringProp name="HTTPSampler.method">GET</stringProp>
+      <stringProp name="HTTPSampler.path">/api/rewards</stringProp>
+    </HTTPSamplerProxy>
+
+    <!-- ========== 监听器 ========== -->
+    <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="汇总报告" enabled="true">
+      <collectionProp name="ResultCollector.fields">
+        <stringProp name="0">sample_startTime</stringProp>
+        <stringProp name="1">label</stringProp>
+        <stringProp name="2">responseCode</stringProp>
+        <stringProp name="3">responseMessage</stringProp>
+        <stringProp name="4">elapsed</stringProp>
+      </collectionProp>
+    </ResultCollector>
+
+    <ResultCollector guiclass="GraphVisualizer" testclass="ResultCollector" testname="聚合报告" enabled="true"/>
+
+    <ResultCollector guiclass="StatVisualizer" testclass="ResultCollector" testname="图形结果" enabled="true"/>
+
+  </hashTree>
+</jmeterTestPlan>

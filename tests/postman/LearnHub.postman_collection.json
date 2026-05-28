@@ -1,0 +1,378 @@
+{
+  "info": {
+    "name": "LearnHub API 测试集合",
+    "description": "LearnHub 一体化学习平台 - 全量 API 接口测试集合\n\n认证方式：Bearer Token\n基础路径：http://localhost:3000/api\n\n使用说明：\n1. 先运行「认证」文件夹中的「管理员登录」获取 token\n2. token 会自动设置到环境变量，后续请求自动携带\n3. 按文件夹顺序运行测试",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "learnhub-test"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "taskId",
+      "value": ""
+    },
+    {
+      "key": "pomodoroId",
+      "value": ""
+    },
+    {
+      "key": "shopItemId",
+      "value": "1"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{token}}", "type": "string" }
+    ]
+  },
+  "item": [
+    {
+      "name": "🔐 认证模块",
+      "item": [
+        {
+          "name": "用户注册",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('注册成功', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.success).to.be.true;",
+                  "  pm.expect(json.data).to.have.property('token');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser_{{$randomInt}}\",\n  \"password\": \"123456\",\n  \"nickname\": \"测试用户\",\n  \"inviteCode\": \"ADMIN2026\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}", "auth", "register"] }
+          }
+        },
+        {
+          "name": "管理员登录",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.success) {",
+                  "  pm.collectionVariables.set('token', json.data.token);",
+                  "  pm.environment.set('token', json.data.token);",
+                  "}",
+                  "pm.test('登录成功', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(json.success).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}", "auth", "login"] }
+          }
+        },
+        {
+          "name": "获取当前用户",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/auth/me", "host": ["{{base_url}}", "auth", "me"] }
+          }
+        },
+        {
+          "name": "获取用户角色",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/auth/role", "host": ["{{base_url}}", "auth", "role"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👑 管理员接口",
+      "item": [
+        {
+          "name": "获取用户列表",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/auth/users?page=1&limit=10", "host": ["{{base_url}}", "auth", "users"] }
+          }
+        },
+        {
+          "name": "搜索用户",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/auth/users?search=admin", "host": ["{{base_url}}", "auth", "users"] }
+          }
+        },
+        {
+          "name": "修改用户角色",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"role\": \"guest\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/users/10/role", "host": ["{{base_url}}", "auth", "users"] }
+          }
+        },
+        {
+          "name": "获取邀请码列表",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/invite-codes", "host": ["{{base_url}}", "invite-codes"] }
+          }
+        },
+        {
+          "name": "生成邀请码",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"role\": \"user\",\n  \"maxUses\": 5\n}" },
+            "url": { "raw": "{{base_url}}/invite-codes", "host": ["{{base_url}}", "invite-codes"] }
+          }
+        },
+        {
+          "name": "获取系统设置",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/settings", "host": ["{{base_url}}", "settings"] }
+          }
+        },
+        {
+          "name": "设置游客演示账号",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": 2\n}" },
+            "url": { "raw": "{{base_url}}/settings/guest-demo", "host": ["{{base_url}}", "settings", "guest-demo"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "✅ 打卡模块",
+      "item": [
+        {
+          "name": "创建打卡",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"habitName\": \"跑步_{{randomInt}}\",\n  \"points\": 5\n}" },
+            "url": { "raw": "{{base_url}}/checkins", "host": ["{{base_url}}", "checkins"] }
+          }
+        },
+        {
+          "name": "获取打卡列表",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/checkins?month=2026-05", "host": ["{{base_url}}", "checkins"] }
+          }
+        },
+        {
+          "name": "获取打卡统计",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/checkins/stats", "host": ["{{base_url}}", "checkins", "stats"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "⏱️ 番茄钟模块",
+      "item": [
+        {
+          "name": "创建番茄钟记录",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"durationPlanned\": 25,\n  \"durationActual\": 25,\n  \"type\": \"focus\",\n  \"status\": \"completed\"\n}" },
+            "url": { "raw": "{{base_url}}/pomodoro", "host": ["{{base_url}}", "pomodoro"] }
+          }
+        },
+        {
+          "name": "今日统计",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/pomodoro/stats", "host": ["{{base_url}}", "pomodoro", "stats"] }
+          }
+        },
+        {
+          "name": "月度历史",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/pomodoro/history?year=2026&month=5", "host": ["{{base_url}}", "pomodoro", "history"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 待办模块",
+      "item": [
+        {
+          "name": "创建任务",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.data?.id) pm.collectionVariables.set('taskId', json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Postman 测试任务\",\n  \"category\": \"urgent_important\",\n  \"priority\": \"urgent\",\n  \"pointsReward\": 20\n}" },
+            "url": { "raw": "{{base_url}}/tasks", "host": ["{{base_url}}", "tasks"] }
+          }
+        },
+        {
+          "name": "获取任务列表",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/tasks", "host": ["{{base_url}}", "tasks"] }
+          }
+        },
+        {
+          "name": "完成任务（加分）",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"done\"\n}" },
+            "url": { "raw": "{{base_url}}/tasks/{{taskId}}", "host": ["{{base_url}}", "tasks", "{{taskId}}"] }
+          }
+        },
+        {
+          "name": "取消完成（扣分验证）",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"todo\"\n}" },
+            "url": { "raw": "{{base_url}}/tasks/{{taskId}}", "host": ["{{base_url}}", "tasks", "{{taskId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛒 商城模块",
+      "item": [
+        {
+          "name": "商品列表",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/shop", "host": ["{{base_url}}", "shop"] }
+          }
+        },
+        {
+          "name": "兑换商品",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{base_url}}/shop/buy/{{shopItemId}}", "host": ["{{base_url}}", "shop", "buy", "{{shopItemId}}"] }
+          }
+        },
+        {
+          "name": "兑换记录",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/shop/orders", "host": ["{{base_url}}", "shop", "orders"] }
+          }
+        },
+        {
+          "name": "创建商品（管理员）",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Postman 测试商品\",\n  \"description\": \"来自 Postman 测试\",\n  \"price\": 50,\n  \"stock\": 100\n}" },
+            "url": { "raw": "{{base_url}}/shop", "host": ["{{base_url}}", "shop"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "⭐ 积分模块",
+      "item": [
+        {
+          "name": "积分汇总",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/rewards", "host": ["{{base_url}}", "rewards"] }
+          }
+        },
+        {
+          "name": "积分流水",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/rewards/logs?type=earn", "host": ["{{base_url}}", "rewards", "logs"] }
+          }
+        },
+        {
+          "name": "验证：完整积分来源",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/rewards/logs", "host": ["{{base_url}}", "rewards", "logs"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📝 笔记/日记模块",
+      "item": [
+        {
+          "name": "创建笔记",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Postman 测试笔记\",\n  \"content\": \"这是一篇通过 Postman 自动测试创建的笔记。\\n\\n测试 Markdown 格式。\\n\\n- 列表项1\\n- 列表项2\"\n}" },
+            "url": { "raw": "{{base_url}}/notes", "host": ["{{base_url}}", "notes"] }
+          }
+        },
+        {
+          "name": "笔记列表",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/notes", "host": ["{{base_url}}", "notes"] }
+          }
+        },
+        {
+          "name": "创建日记",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"测试日记\",\n  \"content\": \"Postman 自动测试\",\n  \"mood\": \"开心\",\n  \"weather\": \"晴\"\n}" },
+            "url": { "raw": "{{base_url}}/diaries", "host": ["{{base_url}}", "diaries"] }
+          }
+        },
+        {
+          "name": "日记列表",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/diaries", "host": ["{{base_url}}", "diaries"] }
+          }
+        }
+      ]
+    }
+  ]
+}

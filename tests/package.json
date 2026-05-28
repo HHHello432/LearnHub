@@ -1,0 +1,20 @@
+{
+  "name": "learnhub-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LearnHub 自动化测试套件",
+  "scripts": {
+    "test:unit": "jest --config jest.config.js --testMatch='**/tests/unit/**/*.test.js'",
+    "test:integration": "jest --config jest.config.js --testMatch='**/tests/integration/**/*.test.js' --forceExit",
+    "test:all": "jest --config jest.config.js --forceExit",
+    "test:e2e": "npx playwright test --config=tests/e2e/playwright.config.js",
+    "test:e2e:headed": "npx playwright test --config=tests/e2e/playwright.config.js --headed"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "@playwright/test": "^1.52.0",
+    "axios": "^1.7.0",
+    "jsonwebtoken": "^9.0.0",
+    "bcryptjs": "^2.4.3"
+  }
+}
